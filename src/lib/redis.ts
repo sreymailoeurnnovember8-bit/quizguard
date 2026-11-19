@@ -8,6 +8,7 @@ import { env } from "@/lib/env";
  * high-frequency state (exam sessions, rate limiting, active-exam status); PostgreSQL remains
  * the source of truth (see docs/ARCHITECTURE.md — Redis Usage Boundaries).
  */
+
 const globalForRedis = globalThis as unknown as {
   redis?: Redis;
 };
@@ -17,6 +18,10 @@ export const redis =
   new Redis(env.REDIS_URL, {
     maxRetriesPerRequest: 3,
   });
+  
+redis.on("error", (err) => {
+  console.error("Redis connection error:", err.message);
+});
 
 if (env.NODE_ENV !== "production") {
   globalForRedis.redis = redis;
